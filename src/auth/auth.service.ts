@@ -22,24 +22,29 @@ export class AuthService {
       },
     };
 
-    const userData = {
+    const sign_token = await this.jwtService.signAsync(payload, {
+      expiresIn: '20s',
+      secret: process.env.JWT_SECRET,
+    });
+
+    const renew_token = await this.jwtService.signAsync(payload, {
+      expiresIn: '1d',
+      secret: process.env.JWT_REFRESH,
+    });
+
+    this.logger.log(
+      `[login] User ${user.email} logged in.\nTokens issued:\nSign token: ${sign_token},\nRenew token: ${renew_token}`,
+    );
+    return {
       user: {
         email: user.email,
         name: user.name,
       },
       backend_tokens: {
-        sign_token: await this.jwtService.signAsync(payload, {
-          expiresIn: '20s',
-          secret: process.env.JWT_SECRET,
-        }),
-        renew_token: await this.jwtService.signAsync(payload, {
-          expiresIn: '1d',
-          secret: process.env.JWT_REFRESH,
-        }),
+        sign_token: sign_token,
+        renew_token: renew_token,
       },
     };
-    this.logger.log(`userData: ${JSON.stringify(userData)}`);
-    return userData;
   }
 
   async validateUser(dto: LoginDto) {
@@ -61,19 +66,24 @@ export class AuthService {
       sub: user.sub,
     };
 
-    const tokens = {
+    const sign_token = await this.jwtService.signAsync(payload, {
+      expiresIn: '20s',
+      secret: process.env.JWT_SECRET,
+    });
+    const renew_token = await this.jwtService.signAsync(payload, {
+      expiresIn: '1d',
+      secret: process.env.JWT_REFRESH,
+    });
+
+    this.logger.log(
+      `[refreshToken] User ${user.email} logged in.\nTokens issued:\nSign token: ${sign_token},\nRenew token: ${renew_token}`,
+    );
+
+    return {
       backend_tokens: {
-        sign_token: await this.jwtService.signAsync(payload, {
-          expiresIn: '20s',
-          secret: process.env.JWT_SECRET,
-        }),
-        renew_token: await this.jwtService.signAsync(payload, {
-          expiresIn: '1d',
-          secret: process.env.JWT_REFRESH,
-        }),
+        sign_token: sign_token,
+        renew_token: renew_token,
       },
     };
-    this.logger.log(tokens);
-    return tokens;
   }
 }
