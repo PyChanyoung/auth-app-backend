@@ -24,7 +24,10 @@ export class JwtGuard implements CanActivate {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: process.env.JWT_SECRET,
       });
-      request['user'] = payload;
+      this.logger.log(`Payload: ${JSON.stringify(payload)}`);
+
+      // request['user'] = payload;
+      request.user = { username: payload.username, sub: payload.sub };
       this.logger.log(`JWT token validated for user ${payload.username}`);
     } catch (e) {
       this.logger.error(`JWT token validation failed: ${e.stack}`);

@@ -35,7 +35,7 @@ export class AuthController {
   @UseGuards(RefreshJwtGuard)
   @Post('refresh')
   async refreshToken(@Request() req) {
-    this.logger.log(`Token refresh attempt for user ${req.user.email}`);
+    this.logger.log(`Token refresh attempt for user ${req.user.sub.name}`);
     return await this.authService.refreshToken(req.user);
   }
 }

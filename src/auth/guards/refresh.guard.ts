@@ -25,8 +25,11 @@ export class RefreshJwtGuard implements CanActivate {
       const payload = await this.jwtService.verifyAsync(token, {
         secret: process.env.JWT_REFRESH,
       });
-      request['user'] = payload;
-      this.logger.log(`User ${payload.username} authenticated`);
+      // this.logger.log(`Payload: ${JSON.stringify(payload)}`);
+
+      // request['user'] = payload;
+      request.user = { username: payload.username, sub: payload.sub };
+      this.logger.log(`User ${request.user.sub.name} authenticated`);
     } catch (e) {
       this.logger.error(`Refresh token validation failed: ${e.stack}`);
       throw new UnauthorizedException();
