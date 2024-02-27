@@ -1,4 +1,11 @@
-import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Request,
+  UseGuards,
+  Logger,
+} from '@nestjs/common';
 import { CreateUserDto } from 'src/user/dto/user.dto';
 import { UserService } from 'src/user/user.service';
 import { AuthService } from './auth.service';
@@ -7,6 +14,8 @@ import { RefreshJwtGuard } from './guards/refresh.guard';
 
 @Controller('auth')
 export class AuthController {
+  private readonly logger = new Logger(AuthController.name);
+
   constructor(
     private userService: UserService,
     private authService: AuthService,
@@ -19,12 +28,14 @@ export class AuthController {
 
   @Post('login')
   async login(@Body() dto: LoginDto) {
+    this.logger.log(`Login attempt for user ${dto.email}`);
     return await this.authService.login(dto);
   }
 
   @UseGuards(RefreshJwtGuard)
   @Post('refresh')
   async refreshToken(@Request() req) {
+    this.logger.log(`Token refresh attempt for user ${req.user.email}`);
     return await this.authService.refreshToken(req.user);
   }
 }

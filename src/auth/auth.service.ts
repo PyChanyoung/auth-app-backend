@@ -15,8 +15,6 @@ export class AuthService {
   async login(dto: LoginDto) {
     const user = await this.validateUser(dto);
 
-    this.logger.log(`User ${user.email} logged in`);
-
     const payload = {
       username: user.email,
       sub: {
@@ -24,7 +22,7 @@ export class AuthService {
       },
     };
 
-    return {
+    const userData = {
       user: {
         email: user.email,
         name: user.name,
@@ -40,6 +38,8 @@ export class AuthService {
         }),
       },
     };
+    this.logger.log(`userData: ${JSON.stringify(userData)}`);
+    return userData;
   }
 
   async validateUser(dto: LoginDto) {
@@ -47,6 +47,7 @@ export class AuthService {
 
     if (user && (await compare(dto.password, user.password))) {
       const { password, ...result } = user.toObject();
+      this.logger.log(`User ${dto.email} validated`);
       return result;
     }
 
@@ -60,7 +61,7 @@ export class AuthService {
       sub: user.sub,
     };
 
-    return {
+    const tokens = {
       backend_tokens: {
         sign_token: await this.jwtService.signAsync(payload, {
           expiresIn: '20s',
@@ -72,5 +73,7 @@ export class AuthService {
         }),
       },
     };
+    this.logger.log(tokens);
+    return tokens;
   }
 }
